@@ -5,7 +5,12 @@
 
 #include "OnlineSubsystem.h"
 
-UMultiplaySessionSubsystem::UMultiplaySessionSubsystem()
+UMultiplaySessionSubsystem::UMultiplaySessionSubsystem():
+CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
+FindSessionsCompleteDelegate(FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete)),
+JoinSessionCompleteDelegate(FOnJoinSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnJoinSessionComplete)),
+DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::OnDestroySessionComplete)),
+StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete))
 {
 
 	IOnlineSubsystem* Subsystem=IOnlineSubsystem::Get();
