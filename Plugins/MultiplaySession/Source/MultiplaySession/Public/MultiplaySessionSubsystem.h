@@ -16,11 +16,32 @@ class MULTIPLAYSESSION_API UMultiplaySessionSubsystem : public UGameInstanceSubs
 	GENERATED_BODY()
 
 public:
-UMultiplaySessionSubsystem();
+	UMultiplaySessionSubsystem();
+
+	void CreateSession(int32 NumPublicConnections, FString MatchType);
+	void FindSession(int32 MaxSearchResult);
+	void JoinSession(const FOnlineSessionSearchResult& SessionSearchResult);
+	void DestroySession();
+	void StartSession();
 
 protected:
-	
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnFindSessionsComplete(bool bWasSuccessful);
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
+
 private:
-IOnlineSessionPtr SessionInterface;
-	
+	IOnlineSessionPtr SessionInterface;
+
+	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
+	FDelegateHandle CreateSessionCompleteDelegateHandle;
+	FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
+	FDelegateHandle FindSessionsCompleteDelegateHandle;
+	FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
+	FDelegateHandle JoinSessionCompleteDelegateHandle;
+	FOnDestroySessionCompleteDelegate DestroySessionCompleteDelegate;
+	FDelegateHandle DestroySessionCompleteDelegateHandle;
+	FOnStartSessionCompleteDelegate StartSessionCompleteDelegate;
+	FDelegateHandle StartSessionCompleteDelegateHandle;
 };
