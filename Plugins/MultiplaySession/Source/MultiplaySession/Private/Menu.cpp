@@ -3,9 +3,10 @@
 
 #include "Menu.h"
 
+#include "MultiplaySessionSubsystem.h"
 #include "Components/Button.h"
 
-void UMenu::MenuSetup()
+void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
 {
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
@@ -24,23 +25,20 @@ void UMenu::MenuSetup()
 			PlayerController->SetShowMouseCursor(true);
 		}
 	}
-
-	
-	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"3");
-	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"4");
-	
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance)
+	{
+		MultiplaySessionSubsystem = GameInstance->GetSubsystem<UMultiplaySessionSubsystem>();
+	}
 }
 
 bool UMenu::Initialize()
 {
-	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"1");
 	return Super::Initialize();
 }
 
 void UMenu::NativeOnInitialized()
 {
-	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"2");
-	
 	if (HostButton)
 	{
 		HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked);
@@ -50,6 +48,12 @@ void UMenu::NativeOnInitialized()
 		JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked);
 	}
 	Super::NativeOnInitialized();
+}
+
+void UMenu::NativeDestruct()
+{
+	MenuTearDown();
+	Super::NativeDestruct();
 }
 
 void UMenu::HostButtonClicked()
@@ -63,6 +67,15 @@ void UMenu::HostButtonClicked()
 			FString(TEXT("Host Button Clicked"))
 		);
 	}
+	if (MultiplaySessionSubsystem)
+	{
+		MultiplaySessionSubsystem->CreateSession(NumPublicConnections, MatchType);
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			World->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+		}
+	}
 }
 
 void UMenu::JoinButtonClicked()
@@ -75,5 +88,21 @@ void UMenu::JoinButtonClicked()
 			FColor::Yellow,
 			FString(TEXT("Join Button Clicked"))
 		);
+	}
+}
+
+void UMenu::MenuTearDown()
+{
+	RemoveFromParent();
+	UWorld*World=GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController=World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			FInputModeGameOnly InputModeData;
+			PlayerController->SetInputMode(InputModeData);
+			PlayerController->SetShowMouseCursor(false);
+		}
 	}
 }
