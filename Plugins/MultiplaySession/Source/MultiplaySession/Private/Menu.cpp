@@ -25,6 +25,22 @@ void UMenu::MenuSetup()
 		}
 	}
 
+	
+	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"3");
+	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"4");
+	
+}
+
+bool UMenu::Initialize()
+{
+	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"1");
+	return Super::Initialize();
+}
+
+void UMenu::NativeOnInitialized()
+{
+	GEngine->AddOnScreenDebugMessage(-1,15,FColor::Red,"2");
+	
 	if (HostButton)
 	{
 		HostButton->OnClicked.AddDynamic(this, &ThisClass::HostButtonClicked);
@@ -33,12 +49,7 @@ void UMenu::MenuSetup()
 	{
 		JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked);
 	}
-	
-}
-
-bool UMenu::Initialize()
-{
-	return Super::Initialize();
+	Super::NativeOnInitialized();
 }
 
 void UMenu::HostButtonClicked()
