@@ -10,12 +10,12 @@
 
 class IOnlineSubsystem;
 
-void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
+void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);	
 	bIsFocusable = true;
-
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -85,9 +85,9 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->ServerTravel("/Game/ThirdPerson/Maps/Lobby?listen");
+			World->ServerTravel(PathToLobby);
 		}
-	}
+	}	
 	else
 	{
 		if (GEngine)
@@ -99,6 +99,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 				FString(TEXT("Failed to create session!"))
 			);
 		}
+		HostButton->SetIsEnabled(true);
 	}
 	
 }
@@ -118,6 +119,10 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 			MultiplaySessionSubsystem->JoinSession(Result);
 			return;
 		}
+	}
+	if (!bWasSuccessful)
+	{
+		JoinButton->SetIsEnabled(true);
 	}
 	
 }
@@ -152,6 +157,7 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::HostButtonClicked()
 {
+	HostButton->SetIsEnabled(false);
 	if (MultiplaySessionSubsystem)
 	{
 		MultiplaySessionSubsystem->CreateSession(NumPublicConnections, MatchType);
@@ -161,6 +167,7 @@ void UMenu::HostButtonClicked()
 
 void UMenu::JoinButtonClicked()
 {
+	JoinButton->SetIsEnabled(false);
 	if (MultiplaySessionSubsystem)
 	{
 		MultiplaySessionSubsystem->FindSession(10000);
